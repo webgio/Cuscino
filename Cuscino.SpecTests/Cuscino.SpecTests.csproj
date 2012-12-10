@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncSpecs\AsyncCouchSpecs.cs" />
     <Compile Include="AsyncSpecs\AwaitResult.cs" />
     <Compile Include="AsyncSpecs\CouchAsyncSpecs.cs" />
     <Compile Include="AsyncSpecs\DatabaseAsyncSpecs.cs" />

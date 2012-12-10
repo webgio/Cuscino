@@ -14,10 +14,12 @@ namespace Cuscino
 
         Task<CouchRequestResult> PostEntityAsync<T>(T entity) where T : CouchDoc;
 
-        Task<T> GetDocumentAsEntityAsync<T>(string docid) where T : CouchDoc;
+        Task<string> GetDocumentAsync(string docid);
 
-        Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string viewPath);
+        Task<T> GetEntityAsync<T>(string docid) where T : CouchDoc;
 
-        Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string viewPath, QueryOptions queryOptions);
+        Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string view);
+
+        Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string view, QueryOptions queryOptions);
     }
 }

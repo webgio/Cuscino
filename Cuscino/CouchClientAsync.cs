@@ -63,9 +63,9 @@ namespace Cuscino
                     return System.Text.Encoding.UTF8.GetString(await wc.UploadDataTaskAsync(url, method, bytes));
                 }
 
-                if (method == "PUT")
+                if (method == "PUT" || method == "DELETE")
                 {
-                    return await wc.UploadStringTaskAsync(url, "PUT", string.Empty);
+                    return await wc.UploadStringTaskAsync(url, method, string.Empty);
                 }
 
                 return System.Text.Encoding.UTF8.GetString(await wc.DownloadDataTaskAsync(url));
@@ -165,39 +165,65 @@ namespace Cuscino
             return reqResult;
         }
 
-        public Task<CouchRequestResult> DeleteDatabaseIfExistsAsync()
+        public async Task<CouchRequestResult> DeleteDatabaseIfExistsAsync()
         {
-            throw new System.NotImplementedException();
+            var dbExists = await DatabaseExists();
+            if (!dbExists)
+                return new CouchRequestResult { Ok = true };
+            string result = await DoRequestAsync(host + "/" + db, "DELETE");
+            if (result.Contains("{\"ok\":true}") != true)
+                throw new ApplicationException("Failed to delete database: " + result);
+            var reqResult = JsonConvert.DeserializeObject<CouchRequestResult>(result);
+            return reqResult;
         }
 
-        public Task<CouchRequestResult> PostDocumentAsync(string content)
+        public async Task<CouchRequestResult> PostDocumentAsync(string content)
         {
-            throw new System.NotImplementedException();
+            var result = await DoRequestAsync(host + "/" + db, "POST", content);
+            var postResult = JsonConvert.DeserializeObject<CouchRequestResult>(result);
+            return postResult;
         }
 
-        public Task<CouchRequestResult> DeleteDocumentAsync(string docid, string revision)
+        public async Task<CouchRequestResult> DeleteDocumentAsync(string docid, string revision)
         {
-            throw new System.NotImplementedException();
+            var result = await DoRequestAsync(this.host + "/" + db + "/" + docid + "?rev=" + revision, "DELETE");
+            var reqResult = JsonConvert.DeserializeObject<CouchRequestResult>(result);
+            return reqResult;
         }
 
-        public Task<CouchRequestResult> PostEntityAsync<T>(T entity) where T : CouchDoc
+        public async Task<CouchRequestResult> PostEntityAsync<T>(T entity) where T : CouchDoc
         {
-            throw new System.NotImplementedException();
+            var content = JsonConvert.SerializeObject(
+                entity,
+                Formatting.Indented,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            var result = await DoRequestAsync(host + "/" + db, "POST", content);
+            var postResult = JsonConvert.DeserializeObject<CouchRequestResult>(result);
+            return postResult;
         }
 
-        public Task<T> GetDocumentAsEntityAsync<T>(string docid) where T : CouchDoc
+        public async Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string view)
         {
-            throw new System.NotImplementedException();
+            return await QueryViewAsEntityAsync<T>(view, new QueryOptions());
         }
 
-        public Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string viewPath)
+        public async Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string view, QueryOptions queryOptions)
         {
-            throw new System.NotImplementedException();
+            CouchViewResult<T> result;
+
+            var uri = host + "/" + db + "/_design/application/_view/" + view;
+
+            var jsondata = await DoRequestAsync(uri, "GET");
+
+            result = JsonConvert.DeserializeObject<CouchViewResult<T>>(jsondata);
+
+            return result;
         }
 
-        public Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string viewPath, QueryOptions queryOptions)
+
+        public async Task<string> GetDocumentAsync(string docid)
         {
-            throw new System.NotImplementedException();
+            return await DoRequestAsync(this.host + "/" + db + "/" + docid, "GET");
         }
     }
 }

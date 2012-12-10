@@ -11,10 +11,8 @@ namespace Cuscino.SpecTests.AsyncSpecs
             {
                 DbName = "testing_cuscino"; // +DateTime.UtcNow.Ticks;
                 CouchClient = new Cuscino.CouchClientAsync("http://localhost.:5984", DbName, "", "");
-                //CouchClient.DeleteDatabaseIfExists();
-                //CouchClient.CreateDatabaseIfNotExists();
+                CouchClient.DeleteDatabaseIfExistsAsync().Await();
+                CouchClient.DeleteDatabaseIfExistsAsync().Await();
             };
-
-        // Cleanup after = () => CouchClient.DeleteDatabaseIfExists();
     }
 }
