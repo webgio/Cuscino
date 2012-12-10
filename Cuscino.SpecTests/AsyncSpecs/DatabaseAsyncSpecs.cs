@@ -164,8 +164,7 @@ namespace Cuscino.SpecTests.AsyncSpecs
         It Should_return_it = () =>
             blogPost.ShouldNotBeNull();
     }
-
-
+    
     [Subject(typeof(CouchClientAsync))]
     public class when_asking_for_a_view : AsyncCouchSpecs
     {
@@ -177,7 +176,7 @@ namespace Cuscino.SpecTests.AsyncSpecs
                                ""_id"": ""_design/application"",
                                ""views"": {
                                    ""created"": {
-                                       ""map"": ""function(doc) {if(doc.created) { var dateIndex = Date.parse(doc.created); emit(dateIndex, doc);}}""
+                                       ""map"": ""function(doc) {if(doc.created) { var dateIndex = Date.parse(doc.created); emit([dateIndex], doc);}}""
                                    }
                                }
                             }";

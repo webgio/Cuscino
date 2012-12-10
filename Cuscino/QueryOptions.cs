@@ -1,3 +1,5 @@
+using System;
+
 namespace Cuscino
 {
     public class QueryOptions
@@ -16,6 +18,19 @@ namespace Cuscino
             Key = string.Empty;
             Startkey = string.Empty;
             Endkey = string.Empty;
+        }
+
+        public string GetCriteria()
+        {
+            var criteria = string.Empty;
+            if (String.IsNullOrEmpty(this.Startkey) == false)
+                criteria += @"startkey=""" + this.Startkey + @"""";
+            if (String.IsNullOrEmpty(this.Startkey) == false && String.IsNullOrEmpty(this.Endkey) == false)
+                criteria += @"&";
+            if (String.IsNullOrEmpty(this.Endkey) == false)
+                criteria += @"endkey=""" + this.Endkey + @"""";
+            criteria += "descending=" + this.Descending.ToString();
+            return criteria;
         }
     }
 }

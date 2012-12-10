@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -209,13 +210,44 @@ namespace Cuscino
 
         public async Task<CouchViewResult<T>> QueryViewAsEntityAsync<T>(string view, QueryOptions queryOptions)
         {
-            CouchViewResult<T> result;
+            CouchViewResult<T> result = new CouchViewResult<T>();
 
-            var uri = host + "/" + db + "/_design/application/_view/" + view;
+            var uri = host + "/" + db + "/_design/application/_view/" + view + "?" + queryOptions.GetCriteria();
 
             var jsondata = await DoRequestAsync(uri, "GET");
 
-            result = JsonConvert.DeserializeObject<CouchViewResult<T>>(jsondata);
+            JObject viewResultJson = JObject.Parse(jsondata);
+
+            IList<JToken> rows = viewResultJson["rows"].Children().ToList();
+
+            // serialize JSON results into .NET objects
+            var items = new List<CouchViewResultItem<T>>();
+            foreach (JToken item in rows)
+            {
+                var valueJson = item["value"].ToString();
+                var value = JsonConvert.DeserializeObject<T>(valueJson);
+                var keysJson = item["key"].ToString();
+                string[] keys;
+                if (!keysJson.StartsWith("["))
+                    keys = new string[] { keysJson };
+                else
+                {
+                    keys = JsonConvert.DeserializeObject<string[]>(keysJson);
+                }
+                var resultItem = new CouchViewResultItem<T>
+                    {
+                        Id = item["id"].ToString(),
+                        Key = keys,
+                        Value = value
+                    };
+                items.Add(resultItem);
+            }
+
+            result.Items = items;
+            result.Offset = int.Parse(viewResultJson["offset"].ToString());
+            result.TotalRows = int.Parse(viewResultJson["total_rows"].ToString());
+            
+            //result = JsonConvert.DeserializeObject<CouchViewResult<T>>(jsondata);
 
             return result;
         }

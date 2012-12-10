@@ -4,15 +4,53 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cuscino
 {
+    public class ViewKeysConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(string[]);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.Value == null)
+                return null;
+            var keyValue = reader.Value.ToString();
+            if (!keyValue.StartsWith("["))
+            {
+                return new string[] {keyValue};
+            }
+            else
+            {
+                // Load JObject from stream
+                JObject jObject = JObject.Load(reader);
+
+                // Create target object based on JObject
+                string[] target = {""};
+
+                // Populate the object properties
+                serializer.Populate(jObject.CreateReader(), target);
+
+                return target;
+            }
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class CouchViewResultItem<T>
     {
         [JsonProperty("id")]
         public string Id { get; set; }
         [JsonProperty("key")]
-        public string Key { get; set; }
+        //[JsonConverter(typeof(ViewKeysConverter))]
+        public string[] Key { get; set; }
         [JsonProperty("value")]
         public T Value { get; set; }
     }
