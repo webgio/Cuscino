@@ -126,12 +126,12 @@ namespace Cuscino.SpecTests.AsyncSpecs
 
         Establish context = () =>
         {
-            var document = @"{
-                               ""_id"": ""testing_a_document"",
-                               ""name"": ""How are you"",
-                               ""created"":""2012-12-07T13:02:18.9840504Z""
-                            }";
-            couchPostResult = CouchClient.PostDocumentAsync(document).Await();
+            newBlogPost = new BlogPost
+            {
+                Author = "Giorgio",
+                Title = "Testing Cuscino",
+                Text = "This is a test"
+            };
         };
 
         Because of = () =>
@@ -203,12 +203,12 @@ namespace Cuscino.SpecTests.AsyncSpecs
                                                            results.ShouldBeOfType<CouchViewResult<SampleType>>();
 
         It should_return_two_elements = () =>
-                                        results.Rows.Count().ShouldEqual(2);
+                                        results.Items.Count().ShouldEqual(2);
 
         It should_return_elements_with_correct_ids = () =>
         {
-            (results.Rows.ElementAt(0).Id).ShouldEqual("testing_a_document");
-            (results.Rows.ElementAt(1).Id).ShouldEqual("testing_a_document2");
+            (results.Items.ElementAt(0).Id).ShouldEqual("testing_a_document");
+            (results.Items.ElementAt(1).Id).ShouldEqual("testing_a_document2");
         };
     }
 }

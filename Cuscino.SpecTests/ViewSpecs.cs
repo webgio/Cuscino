@@ -40,12 +40,12 @@ namespace Cuscino.SpecTests
                                                            results.ShouldBeOfType<CouchViewResult<SampleType>>();
 
         It should_return_two_elements = () => 
-                                        results.Rows.Count().ShouldEqual(2);
+                                        results.Items.Count().ShouldEqual(2);
 
         It should_return_elements_with_correct_ids = () =>
             {
-                (results.Rows.ElementAt(0).Id).ShouldEqual("testing_a_document");
-                (results.Rows.ElementAt(1).Id).ShouldEqual("testing_a_document2");
+                (results.Items.ElementAt(0).Id).ShouldEqual("testing_a_document");
+                (results.Items.ElementAt(1).Id).ShouldEqual("testing_a_document2");
             };
     }
 }

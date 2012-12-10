@@ -25,11 +25,16 @@ namespace Cuscino
         public int Offset { get; set; }
 
         [JsonProperty("rows")]
-        public IEnumerable<CouchViewResultItem<T>> Rows { get; set; }
+        public IEnumerable<CouchViewResultItem<T>> Items { get; set; }
+
+        public IEnumerable<T> Rows
+        {
+            get { return Items.Select(x => x.Value); }
+        }
 
         public CouchViewResult()
         {
-            Rows = new List<CouchViewResultItem<T>>();
+            Items = new List<CouchViewResultItem<T>>();
         }
     }
 }
