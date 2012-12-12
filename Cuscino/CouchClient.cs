@@ -269,8 +269,37 @@ namespace Cuscino
             var uri = host + "/" + db + "/_design/application/_view/" + view;
 
             var jsondata = DoRequest(uri, "GET");
+            JObject viewResultJson = JObject.Parse(jsondata);
+            IList<JToken> rows = viewResultJson["rows"].Children().ToList();
 
-            result = JsonConvert.DeserializeObject<CouchViewResult<T>>(jsondata);
+            // serialize JSON results into .NET objects
+            var items = new List<CouchViewResultItem<T>>();
+            foreach (JToken item in rows)
+            {
+                var valueJson = item["value"].ToString();
+                var value = JsonConvert.DeserializeObject<T>(valueJson);
+                var keysJson = item["key"].ToString();
+                string[] keys;
+                if (!keysJson.StartsWith("["))
+                    keys = new string[] { keysJson };
+                else
+                {
+                    keys = JsonConvert.DeserializeObject<string[]>(keysJson);
+                }
+                var resultItem = new CouchViewResultItem<T>
+                {
+                    Id = item["id"].ToString(),
+                    Key = keys,
+                    Value = value
+                };
+                items.Add(resultItem);
+            }
+
+            result.Items = items;
+            result.Offset = int.Parse(viewResultJson["offset"].ToString());
+            result.TotalRows = int.Parse(viewResultJson["total_rows"].ToString());
+
+            //result = JsonConvert.DeserializeObject<CouchViewResult<T>>(jsondata);
 
             return result;
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Cuscino
 {
@@ -20,17 +21,18 @@ namespace Cuscino
             Endkey = string.Empty;
         }
 
-        public string GetCriteria()
+        public Dictionary<string,string> GetCriteria()
         {
-            var criteria = string.Empty;
-            if (String.IsNullOrEmpty(this.Startkey) == false)
-                criteria += @"startkey=""" + this.Startkey + @"""";
-            if (String.IsNullOrEmpty(this.Startkey) == false && String.IsNullOrEmpty(this.Endkey) == false)
-                criteria += @"&";
-            if (String.IsNullOrEmpty(this.Endkey) == false)
-                criteria += @"endkey=""" + this.Endkey + @"""";
-            criteria += "descending=" + this.Descending.ToString();
-            return criteria;
+            var criterias = new Dictionary<string, string>();
+
+            if (String.IsNullOrEmpty(Startkey) == false)
+                criterias.Add("startkey", Startkey);
+            if (String.IsNullOrEmpty(Endkey) == false)
+                criterias.Add("endkey", Endkey);
+            if (Descending)
+                criterias.Add("descending", "true");
+
+            return criterias;
         }
     }
 }

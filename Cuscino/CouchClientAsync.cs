@@ -50,12 +50,25 @@ namespace Cuscino
             return await DoRequestAsync(url, method, null);
         }
 
-        private async Task<string> DoRequestAsync(string url, string method, string postdata)
+        internal async Task<string> DoRequestAsync(string url, string method, string postdata)
+        {
+            return await DoRequestAsync(url, method, postdata, null);
+        }
+
+        private async Task<string> DoRequestAsync(string url, string method, string postdata, Dictionary<string,string> criterias)
         {
             using (var wc = new WebClient())
             {
                 var creds = new CredentialCache { { new Uri(this.host), "Basic", new NetworkCredential(this.username, this.password) } };
                 wc.Credentials = creds;
+
+                if (criterias != null)
+                {
+                    foreach (var criteria in criterias)
+                    {
+                        wc.QueryString.Add(criteria.Key, criteria.Value);
+                    }
+                }
                 
                 if (postdata != null)
                 {
@@ -200,6 +213,7 @@ namespace Cuscino
                 new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             var result = await DoRequestAsync(host + "/" + db, "POST", content);
             var postResult = JsonConvert.DeserializeObject<CouchRequestResult>(result);
+            entity.Id = postResult.Id;
             return postResult;
         }
 
@@ -212,9 +226,9 @@ namespace Cuscino
         {
             CouchViewResult<T> result = new CouchViewResult<T>();
 
-            var uri = host + "/" + db + "/_design/application/_view/" + view + "?" + queryOptions.GetCriteria();
+            var uri = host + "/" + db + "/_design/application/_view/" + view;
 
-            var jsondata = await DoRequestAsync(uri, "GET");
+            var jsondata = await DoRequestAsync(uri, "GET", null, queryOptions.GetCriteria());
 
             JObject viewResultJson = JObject.Parse(jsondata);
 
