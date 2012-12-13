@@ -53,6 +53,8 @@ namespace Cuscino
         public string[] Key { get; set; }
         [JsonProperty("value")]
         public T Value { get; set; }
+        [JsonProperty("doc")]
+        public T Doc { get; set; }
     }
     public class CouchViewResult<T>
     {
@@ -68,6 +70,11 @@ namespace Cuscino
         public IEnumerable<T> Rows
         {
             get { return Items.Select(x => x.Value); }
+        }
+
+        public IEnumerable<T> Docs
+        {
+            get { return Items.Select(x => x.Doc); }
         }
 
         public CouchViewResult()

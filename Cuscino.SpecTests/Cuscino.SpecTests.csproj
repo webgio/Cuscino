@@ -57,6 +57,7 @@
     <Compile Include="AsyncSpecs\DatabaseAsyncSpecs.cs" />
     <Compile Include="AsyncSpecs\GetEntitySpecs.cs" />
     <Compile Include="AsyncSpecs\TaskSpecificationExtensions.cs" />
+    <Compile Include="AsyncSpecs\ViewSpecs.cs" />
     <Compile Include="ViewSpecs.cs" />
     <Compile Include="BlogPost.cs" />
     <Compile Include="DeletingSpecs.cs" />
