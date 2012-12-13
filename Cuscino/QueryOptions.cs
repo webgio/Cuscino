@@ -29,8 +29,16 @@ namespace Cuscino
                 criterias.Add("startkey", Startkey);
             if (String.IsNullOrEmpty(Endkey) == false)
                 criterias.Add("endkey", Endkey);
+            if (String.IsNullOrEmpty(Key) == false)
+                criterias.Add("key", Key);
+            if (Limit != 0)
+                criterias.Add("limit", Limit.ToString());
+            if (Skip != 0)
+                criterias.Add("skip", Skip.ToString());
             if (Descending)
                 criterias.Add("descending", "true");
+            if (IncludeDocs)
+                criterias.Add("include_docs", "true");
 
             return criterias;
         }

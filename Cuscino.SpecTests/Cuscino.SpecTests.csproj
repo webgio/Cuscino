@@ -55,6 +55,7 @@
     <Compile Include="AsyncSpecs\AwaitResult.cs" />
     <Compile Include="AsyncSpecs\CouchAsyncSpecs.cs" />
     <Compile Include="AsyncSpecs\DatabaseAsyncSpecs.cs" />
+    <Compile Include="AsyncSpecs\GetEntitySpecs.cs" />
     <Compile Include="AsyncSpecs\TaskSpecificationExtensions.cs" />
     <Compile Include="ViewSpecs.cs" />
     <Compile Include="BlogPost.cs" />

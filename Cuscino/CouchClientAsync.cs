@@ -81,8 +81,19 @@ namespace Cuscino
                 {
                     return await wc.UploadStringTaskAsync(url, method, string.Empty);
                 }
-
-                return System.Text.Encoding.UTF8.GetString(await wc.DownloadDataTaskAsync(url));
+                string result;
+                try
+                {
+                    result = System.Text.Encoding.UTF8.GetString(await wc.DownloadDataTaskAsync(url));
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Message.Contains("404"))
+                        result = string.Empty;
+                    else
+                        throw;
+                }
+                return result;
             }
         }
         
@@ -122,49 +133,14 @@ namespace Cuscino
 
             return searchResults;
         }
-
-        public async Task<IEnumerable<T>> GetViewAsync<T>(CouchQuery couchQuery) where T : CouchDoc
-        {
-            var uri = host + "/" + db + "/_design/" + couchQuery.GetUri();
-            if (string.IsNullOrEmpty(couchQuery.GetCriteria()) == false) uri += "?" + couchQuery.GetCriteria();
-
-            var stringList = await DoRequestAsync(uri, "GET");
-
-            JObject searchResultJson = JObject.Parse(stringList);
-
-            // get JSON result objects into a list
-            IList<JToken> results = searchResultJson["rows"].Children().ToList();
-
-            // serialize JSON results into .NET objects
-            IList<T> searchResults = new List<T>();
-            foreach (JToken result in results)
-            {
-                var searchResult = JsonConvert.DeserializeObject<T>(result["value"].ToString());
-                searchResults.Add(searchResult);
-            }
-
-            return searchResults;
-        }
-        
+      
         public async Task<T> GetEntityAsync<T>(string docid) where T : CouchDoc
         {
             var jsondata = await DoRequestAsync(this.host + "/" + db + "/" + docid, "GET");
+            if (string.IsNullOrEmpty(jsondata))
+                return null;
             var entity = JsonConvert.DeserializeObject<T>(jsondata);
             return entity;
-        }
-
-        public async Task<IEnumerable<dynamic>> GetDynamicViewAsync(CouchQuery couchQuery)
-        {
-            var uri = host + "/" + db + "/_design/" + couchQuery.GetUri();
-            if (string.IsNullOrEmpty(couchQuery.GetCriteria()) == false) uri += "?" + couchQuery.GetCriteria();
-
-            var stringList = await DoRequestAsync(uri, "GET");
-
-            var jss = new JavaScriptSerializer();
-
-            var data = jss.Deserialize<dynamic>(stringList);
-
-            return data["rows"];
         }
 
         public async Task<CouchRequestResult> CreateDatabaseIfNotExistsAsync()
