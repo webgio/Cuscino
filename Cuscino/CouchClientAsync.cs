@@ -230,10 +230,11 @@ namespace Cuscino
                         Key = keys,
                         Value = value
                     };
-                var docJson = item["doc"].ToString();
+                
+                var docJson = item["doc"];
                 if (docJson != null)
                 {
-                    var doc = JsonConvert.DeserializeObject<T>(docJson);
+                    var doc = JsonConvert.DeserializeObject<T>(docJson.ToString());
                     resultItem.Doc = doc;
                 }
                 items.Add(resultItem);

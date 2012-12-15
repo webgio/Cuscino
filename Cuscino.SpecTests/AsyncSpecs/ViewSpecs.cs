@@ -13,6 +13,9 @@ namespace Cuscino.SpecTests.AsyncSpecs
                                ""views"": {
                                    ""created"": {
                                        ""map"": ""function(doc) {if(doc.created) { var dateIndex = Date.parse(doc.created); emit(dateIndex, null);}}""
+                                   },
+                                   ""names"": {
+                                       ""map"": ""function(doc) {if(doc.name) { emit(doc.name, {'_id': doc._id, 'name': doc.name, 'created': doc.created});}}""
                                    }
                                }
                             }";
@@ -23,7 +26,7 @@ namespace Cuscino.SpecTests.AsyncSpecs
                             }";
             var document2 = @"{
                                ""_id"": ""testing_a_document2"",
-                               ""name"": ""How are you"",
+                               ""name"": ""How are you2"",
                                ""created"":""2012-12-07T13:02:18.9840504Z""
                             }";
             CouchClient.PostDocumentAsync(view).Await();
@@ -69,5 +72,19 @@ namespace Cuscino.SpecTests.AsyncSpecs
             (results.Items.ElementAt(0).Doc).ShouldNotBeNull();
             (results.Items.ElementAt(1).Doc).ShouldNotBeNull();
         };
+    }
+
+    [Subject(typeof(CouchClient))]
+    public class when_a_view_returns_json_object : AsyncViewCouchSpecs
+    {
+        Because of = () =>
+                     results = CouchClient
+                     .QueryViewAsEntityAsync<SampleType>(
+                        "names",
+                        new QueryOptions { Key = "\"How are you\"" })
+                     .Await();
+
+        It should_return_one_element = () =>
+                                        results.Items.Count().ShouldEqual(1);
     }
 }
