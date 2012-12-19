@@ -12,7 +12,9 @@ namespace Cuscino
         public string Revision { get; set; }
 
         [JsonProperty("type", NullValueHandling= NullValueHandling.Ignore)]
-        public string Type { get; set; } 
+        public string Type { get; set; }
+
+        public string id { get { return this.Id; } }
 
         protected CouchDoc()
         {
